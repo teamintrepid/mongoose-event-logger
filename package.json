@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/limenutt/mongoose-event-logger.git"
+    "url": "https://github.com/teamintrepid/mongoose-event-logger.git"
   },
   "contributors": [
     {
@@ -27,8 +27,8 @@
     }
   ],
   "author": "Mikhail Asavkin <limenutt@gmail.com>",
-  "license": "ISC",
-  "homepage": "https://github.com/limenutt/mongoose-event-logger",
+  "license": "MIT",
+  "homepage": "https://github.com/teamintrepid/mongoose-event-logger",
   "dependencies": {
     "babel-polyfill": "^6.9.1",
     "babel-runtime": "^6.6.1",
