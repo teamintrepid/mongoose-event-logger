@@ -4,8 +4,6 @@ const winston = require('winston');
 const clone = require('clone');
 const stackTrace = require('stack-trace');
 
-import { setSpath, getSpath } from 'kal-dep-mapreduce-helper';
-
 function isDocument(doc, mongooseInstance = mongoose) {
   const Document = Object.getPrototypeOf(mongooseInstance).Document;
   return doc && doc._doc &&
@@ -239,6 +237,61 @@ export function mergeAttributes(currentAttributes, newAttributes) {
 export function updateAttributes(model, spath, attributes) {
   setSpath(model, spath, mergeAttributes(getSpath(model, spath), attributes));
 }
+
+export function getSpath(object, spath) {
+  if (spath === undefined || !spath.length) {
+    return object;
+  }
+  const components = spath.split('.');
+  let currentObject = object;
+  for (let i = 0; i < components.length; i++) {
+    if (Array.isArray(currentObject)) {
+      currentObject = currentObject.map(item => getSpath(item, components.slice(i).join('.')));
+      return currentObject;
+    }
+    if (currentObject[components[i]] === undefined) {
+      return undefined;
+    }
+    if (currentObject[components[i]] === null) {
+      return null;
+    }
+    currentObject = currentObject[components[i]];
+  }
+  return currentObject;
+}
+
+export function setSpath(object, spath, value) {
+  if (spath === undefined) {
+    throw new Error('spath is required');
+  }
+  const components = spath.split('.');
+  if (!components.length) {
+    return value;
+  }
+  let currentObject = object;
+  for (let i = 0; i < components.length; i++) {
+    if (Array.isArray(currentObject)) {
+      const itemPath = components.slice(i).join('.');
+      for (let j = 0; j < currentObject.length; j++) {
+        const item = currentObject[j];
+        const itemValue = Array.isArray(value) ? value[Math.min(j, value.length - 1)] : value;
+        const resItem = setSpath(item, itemPath, itemValue);
+        currentObject[j] = resItem;
+      }
+      return currentObject;
+    }
+    if (i === components.length - 1) {
+      currentObject[components[components.length - 1]] = value;
+      continue;
+    }
+    if (currentObject[components[i]] === undefined) {
+      currentObject[components[i]] = {};
+    }
+    currentObject = currentObject[components[i]];
+  }
+  return object;
+}
+
 
 export function setProperty(
   model,

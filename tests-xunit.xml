@@ -1,145 +1,145 @@
-<testsuites name="kal-dep-events-logger">
-<testsuite name="Events logging Document changes" tests="11" failures="0" skipped="0" timestamp="Fri, 26 Aug 2016 09:48:28 GMT" time="2.206">
-<testcase classname="Events logging Document changes" name="should log complete deleted object when document is removed" time="0.73">
+<testsuites name="mongoose-event-logger">
+<testsuite name="Events logging Document changes" tests="11" failures="0" skipped="0" timestamp="Fri, 02 Mar 2018 04:16:01 GMT" time="1.517">
+<testcase classname="Events logging Document changes" name="should log complete deleted object when document is removed" time="0.186">
 </testcase>
-<testcase classname="Events logging Document changes" name="should log complete created object when document is created" time="0.114">
+<testcase classname="Events logging Document changes" name="should log complete created object when document is created" time="0.11">
 </testcase>
-<testcase classname="Events logging Document changes" name="should not log an event when no document fields were updated" time="0.11">
+<testcase classname="Events logging Document changes" name="should not log an event when no document fields were updated" time="0.109">
 </testcase>
-<testcase classname="Events logging Document changes" name="should log only updated fields if scalar value has been updated" time="0.123">
+<testcase classname="Events logging Document changes" name="should log only updated fields if scalar value has been updated" time="0.119">
 </testcase>
-<testcase classname="Events logging Document changes" name="should log only updated fields if scalar property has been unset" time="0.122">
+<testcase classname="Events logging Document changes" name="should log only updated fields if scalar property has been unset" time="0.115">
 </testcase>
-<testcase classname="Events logging Document changes" name="should log only updated fields if removed one array item" time="0.129">
+<testcase classname="Events logging Document changes" name="should log only updated fields if removed one array item" time="0.118">
 </testcase>
-<testcase classname="Events logging Document changes" name="should log only updated fields if added one array item" time="0.146">
+<testcase classname="Events logging Document changes" name="should log only updated fields if added one array item" time="0.117">
 </testcase>
-<testcase classname="Events logging Document changes" name="should log only updated fields if updated an array element" time="0.126">
+<testcase classname="Events logging Document changes" name="should log only updated fields if updated an array element" time="0.116">
 </testcase>
-<testcase classname="Events logging Document changes" name="should log only updated fields if completely replaced an array" time="0.133">
+<testcase classname="Events logging Document changes" name="should log only updated fields if completely replaced an array" time="0.117">
 </testcase>
-<testcase classname="Events logging Document changes" name="should not log if replaced array with the same array" time="0.114">
+<testcase classname="Events logging Document changes" name="should not log if replaced array with the same array" time="0.113">
 </testcase>
-<testcase classname="Events logging Document changes" name="should log if replaced array with different array" time="0.121">
-</testcase>
-</testsuite>
-<testsuite name="Events logging Logging options" tests="1" failures="0" skipped="0" timestamp="Fri, 26 Aug 2016 09:48:30 GMT" time="0.979">
-<testcase classname="Events logging Logging options" name="should set logging options" time="0.484">
+<testcase classname="Events logging Document changes" name="should log if replaced array with different array" time="0.114">
 </testcase>
 </testsuite>
-<testsuite name="Events logging with log behaviour [delta]" tests="2" failures="0" skipped="0" timestamp="Fri, 26 Aug 2016 09:48:31 GMT" time="1.195">
-<testcase classname="Events logging with log behaviour [delta]" name="should not log when only skipped properties are changed" time="0.108">
-</testcase>
-<testcase classname="Events logging with log behaviour [delta]" name="should log all properties that are changed including skipped if at least one non-skipped property was changed" time="0.113">
+<testsuite name="Events logging Logging options" tests="1" failures="0" skipped="0" timestamp="Fri, 02 Mar 2018 04:16:03 GMT" time="0.09">
+<testcase classname="Events logging Logging options" name="should set logging options" time="0.043">
 </testcase>
 </testsuite>
-<testsuite name="Events logging with log behaviour [snapshot]" tests="4" failures="0" skipped="0" timestamp="Fri, 26 Aug 2016 09:48:32 GMT" time="1.218">
-<testcase classname="Events logging with log behaviour [snapshot]" name="should not log when only skipped properties are changed" time="0.108">
+<testsuite name="Events logging with log behaviour [delta]" tests="2" failures="0" skipped="0" timestamp="Fri, 02 Mar 2018 04:16:03 GMT" time="0.33">
+<testcase classname="Events logging with log behaviour [delta]" name="should not log when only skipped properties are changed" time="0.106">
 </testcase>
-<testcase classname="Events logging with log behaviour [snapshot]" name="should log object snapshot if at least one non-skipped property was changed" time="0.118">
-</testcase>
-<testcase classname="Events logging with log behaviour [snapshot]" name="should log object snapshot when it was deleted" time="0.112">
-</testcase>
-<testcase classname="Events logging with log behaviour [snapshot]" name="should log object snapshot when it is created" time="0.104">
+<testcase classname="Events logging with log behaviour [delta]" name="should log all properties that are changed including skipped if at least one non-skipped property was changed" time="0.117">
 </testcase>
 </testsuite>
-<testsuite name="Events logging with log behaviour [snapshotAndDelta]" tests="2" failures="0" skipped="0" timestamp="Fri, 26 Aug 2016 09:48:34 GMT" time="0.914">
-<testcase classname="Events logging with log behaviour [snapshotAndDelta]" name="should not log when only skipped properties are changed" time="0.106">
+<testsuite name="Events logging with log behaviour [snapshot]" tests="4" failures="0" skipped="0" timestamp="Fri, 02 Mar 2018 04:16:03 GMT" time="0.651">
+<testcase classname="Events logging with log behaviour [snapshot]" name="should not log when only skipped properties are changed" time="0.154">
 </testcase>
-<testcase classname="Events logging with log behaviour [snapshotAndDelta]" name="should log object snapshot and delta if at least one non-skipped property was changed" time="0.112">
+<testcase classname="Events logging with log behaviour [snapshot]" name="should log object snapshot if at least one non-skipped property was changed" time="0.117">
 </testcase>
-</testsuite>
-<testsuite name="Events logging with log behaviour [id]" tests="4" failures="0" skipped="0" timestamp="Fri, 26 Aug 2016 09:48:34 GMT" time="1.189">
-<testcase classname="Events logging with log behaviour [id]" name="should not log when only skipped properties are changed" time="0.107">
+<testcase classname="Events logging with log behaviour [snapshot]" name="should log object snapshot when it was deleted" time="0.127">
 </testcase>
-<testcase classname="Events logging with log behaviour [id]" name="should log object id if at least one non-skipped property was changed" time="0.111">
-</testcase>
-<testcase classname="Events logging with log behaviour [id]" name="should only log object id when the document was deleted" time="0.11">
-</testcase>
-<testcase classname="Events logging with log behaviour [id]" name="should only log object id when it is created" time="0.102">
+<testcase classname="Events logging with log behaviour [snapshot]" name="should log object snapshot when it is created" time="0.112">
 </testcase>
 </testsuite>
-<testsuite name="Events logging with object type prefix" tests="2" failures="0" skipped="0" timestamp="Fri, 26 Aug 2016 09:48:36 GMT" time="1.198">
-<testcase classname="Events logging with object type prefix" name="should use prefix set when applying plugin" time="0.529">
+<testsuite name="Events logging with log behaviour [snapshotAndDelta]" tests="2" failures="0" skipped="0" timestamp="Fri, 02 Mar 2018 04:16:04 GMT" time="0.331">
+<testcase classname="Events logging with log behaviour [snapshotAndDelta]" name="should not log when only skipped properties are changed" time="0.11">
+</testcase>
+<testcase classname="Events logging with log behaviour [snapshotAndDelta]" name="should log object snapshot and delta if at least one non-skipped property was changed" time="0.113">
+</testcase>
+</testsuite>
+<testsuite name="Events logging with log behaviour [id]" tests="4" failures="0" skipped="0" timestamp="Fri, 02 Mar 2018 04:16:04 GMT" time="0.569">
+<testcase classname="Events logging with log behaviour [id]" name="should not log when only skipped properties are changed" time="0.106">
+</testcase>
+<testcase classname="Events logging with log behaviour [id]" name="should log object id if at least one non-skipped property was changed" time="0.112">
+</testcase>
+<testcase classname="Events logging with log behaviour [id]" name="should only log object id when the document was deleted" time="0.108">
+</testcase>
+<testcase classname="Events logging with log behaviour [id]" name="should only log object id when it is created" time="0.104">
+</testcase>
+</testsuite>
+<testsuite name="Events logging with object type prefix" tests="2" failures="0" skipped="0" timestamp="Fri, 02 Mar 2018 04:16:05 GMT" time="0.331">
+<testcase classname="Events logging with object type prefix" name="should use prefix set when applying plugin" time="0.155">
 </testcase>
 <testcase classname="Events logging with object type prefix" name="should use prefix set on the document level" time="0.11">
 </testcase>
 </testsuite>
-<testsuite name="Model functions Creating" tests="1" failures="0" skipped="0" timestamp="Fri, 26 Aug 2016 09:48:37 GMT" time="0.846">
-<testcase classname="Model functions Creating" name="should create a document" time="0.422">
+<testsuite name="Model functions Creating" tests="1" failures="0" skipped="0" timestamp="Fri, 02 Mar 2018 04:16:05 GMT" time="0.096">
+<testcase classname="Model functions Creating" name="should create a document" time="0.043">
 </testcase>
 </testsuite>
-<testsuite name="Model functions Fetching" tests="5" failures="0" skipped="0" timestamp="Fri, 26 Aug 2016 09:48:38 GMT" time="1.052">
-<testcase classname="Model functions Fetching" name="should fetch a document with findById" time="0.491">
+<testsuite name="Model functions Fetching" tests="5" failures="0" skipped="0" timestamp="Fri, 02 Mar 2018 04:16:05 GMT" time="0.274">
+<testcase classname="Model functions Fetching" name="should fetch a document with findById" time="0.058">
 </testcase>
-<testcase classname="Model functions Fetching" name="should fetch the document with findOne" time="0.016">
+<testcase classname="Model functions Fetching" name="should fetch the document with findOne" time="0.014">
 </testcase>
-<testcase classname="Model functions Fetching" name="should fetch the document with find" time="0.015">
+<testcase classname="Model functions Fetching" name="should fetch the document with find" time="0.006">
 </testcase>
-<testcase classname="Model functions Fetching" name="should fetch the document with population" time="0.03">
+<testcase classname="Model functions Fetching" name="should fetch the document with population" time="0.098">
 </testcase>
-<testcase classname="Model functions Fetching" name="should fetch document with deep population" time="0.032">
-</testcase>
-</testsuite>
-<testsuite name="Model functions Removing" tests="1" failures="0" skipped="0" timestamp="Fri, 26 Aug 2016 09:48:39 GMT" time="1.052">
-<testcase classname="Model functions Removing" name="should remove a document" time="0.518">
+<testcase classname="Model functions Fetching" name="should fetch document with deep population" time="0.05">
 </testcase>
 </testsuite>
-<testsuite name="Caller logging Creating" tests="2" failures="0" skipped="0" timestamp="Fri, 26 Aug 2016 09:48:40 GMT" time="0.821">
-<testcase classname="Caller logging Creating" name="should set caller to the document being saved" time="0.37">
-</testcase>
-<testcase classname="Caller logging Creating" name="should set caller to the saved document" time="0.006">
+<testsuite name="Model functions Removing" tests="1" failures="0" skipped="0" timestamp="Fri, 02 Mar 2018 04:16:05 GMT" time="0.08">
+<testcase classname="Model functions Removing" name="should remove a document" time="0.044">
 </testcase>
 </testsuite>
-<testsuite name="Caller logging Removing" tests="1" failures="0" skipped="0" timestamp="Fri, 26 Aug 2016 09:48:41 GMT" time="1.02">
-<testcase classname="Caller logging Removing" name="should set caller to the document being removed" time="0.366">
+<testsuite name="Caller logging Creating" tests="2" failures="0" skipped="0" timestamp="Fri, 02 Mar 2018 04:16:05 GMT" time="0.086">
+<testcase classname="Caller logging Creating" name="should set caller to the document being saved" time="0.039">
+</testcase>
+<testcase classname="Caller logging Creating" name="should set caller to the saved document" time="0.007">
 </testcase>
 </testsuite>
-<testsuite name="Logger mongoose plugin getDelta for objects containing only scalars" tests="6" failures="0" skipped="0" timestamp="Fri, 26 Aug 2016 09:48:42 GMT" time="0.65">
+<testsuite name="Caller logging Removing" tests="1" failures="0" skipped="0" timestamp="Fri, 02 Mar 2018 04:16:05 GMT" time="0.099">
+<testcase classname="Caller logging Removing" name="should set caller to the document being removed" time="0.054">
+</testcase>
+</testsuite>
+<testsuite name="Logger mongoose plugin getDelta for objects containing only scalars" tests="6" failures="0" skipped="0" timestamp="Fri, 02 Mar 2018 04:16:06 GMT" time="0.045">
 <testcase classname="Logger mongoose plugin getDelta for objects containing only scalars" name="should return empty result for the same objects" time="0.001">
 </testcase>
 <testcase classname="Logger mongoose plugin getDelta for objects containing only scalars" name="should return empty result for cloned objects">
 </testcase>
-<testcase classname="Logger mongoose plugin getDelta for objects containing only scalars" name="should return empty result for identical objects" time="0.001">
+<testcase classname="Logger mongoose plugin getDelta for objects containing only scalars" name="should return empty result for identical objects">
 </testcase>
 <testcase classname="Logger mongoose plugin getDelta for objects containing only scalars" name="should return property that has been changed and it&#39;s new value">
 </testcase>
-<testcase classname="Logger mongoose plugin getDelta for objects containing only scalars" name="should return property that has been added and it&#39;s value" time="0.001">
+<testcase classname="Logger mongoose plugin getDelta for objects containing only scalars" name="should return property that has been added and it&#39;s value">
 </testcase>
-<testcase classname="Logger mongoose plugin getDelta for objects containing only scalars" name="should return property that has been deleted with a flag &#39;$DELETED&#39; as it&#39;s name and in __deletedKeys array">
+<testcase classname="Logger mongoose plugin getDelta for objects containing only scalars" name="should return property that has been deleted with a flag &#39;$DELETED&#39; as it&#39;s name and in __deletedKeys array" time="0.001">
 </testcase>
 </testsuite>
-<testsuite name="Logger mongoose plugin getDelta for objects containing arrays" tests="7" failures="0" skipped="0" timestamp="Fri, 26 Aug 2016 09:48:42 GMT" time="0.019">
-<testcase classname="Logger mongoose plugin getDelta for objects containing arrays" name="should return empty result for the same objects" time="0.001">
+<testsuite name="Logger mongoose plugin getDelta for objects containing arrays" tests="7" failures="0" skipped="0" timestamp="Fri, 02 Mar 2018 04:16:06 GMT" time="0.049">
+<testcase classname="Logger mongoose plugin getDelta for objects containing arrays" name="should return empty result for the same objects">
 </testcase>
 <testcase classname="Logger mongoose plugin getDelta for objects containing arrays" name="should return empty result for cloned objects">
 </testcase>
-<testcase classname="Logger mongoose plugin getDelta for objects containing arrays" name="should return empty result for identical objects" time="0.001">
+<testcase classname="Logger mongoose plugin getDelta for objects containing arrays" name="should return empty result for identical objects">
 </testcase>
-<testcase classname="Logger mongoose plugin getDelta for objects containing arrays" name="if modified an array element should return array property that has been changed and it&#39;s new value">
+<testcase classname="Logger mongoose plugin getDelta for objects containing arrays" name="if modified an array element should return array property that has been changed and it&#39;s new value" time="0.001">
 </testcase>
 <testcase classname="Logger mongoose plugin getDelta for objects containing arrays" name="if modified a subarray element should return array property that has been changed and it&#39;s new value">
 </testcase>
-<testcase classname="Logger mongoose plugin getDelta for objects containing arrays" name="should return property that has been added and it&#39;s value">
+<testcase classname="Logger mongoose plugin getDelta for objects containing arrays" name="should return property that has been added and it&#39;s value" time="0.001">
 </testcase>
 <testcase classname="Logger mongoose plugin getDelta for objects containing arrays" name="should return property that has been deleted with a flag &#39;$DELETED&#39; as it&#39;s name and in __deletedKeys array">
 </testcase>
 </testsuite>
-<testsuite name="Logger mongoose plugin getDelta for objects containing other objects" tests="6" failures="0" skipped="0" timestamp="Fri, 26 Aug 2016 09:48:42 GMT" time="0.015">
-<testcase classname="Logger mongoose plugin getDelta for objects containing other objects" name="should return empty result for the same objects" time="0.001">
+<testsuite name="Logger mongoose plugin getDelta for objects containing other objects" tests="6" failures="0" skipped="0" timestamp="Fri, 02 Mar 2018 04:16:06 GMT" time="0.049">
+<testcase classname="Logger mongoose plugin getDelta for objects containing other objects" name="should return empty result for the same objects">
 </testcase>
 <testcase classname="Logger mongoose plugin getDelta for objects containing other objects" name="should return empty result for cloned objects">
 </testcase>
 <testcase classname="Logger mongoose plugin getDelta for objects containing other objects" name="should return empty result for identical objects">
 </testcase>
-<testcase classname="Logger mongoose plugin getDelta for objects containing other objects" name="if modified an array element of subproperty should return array subproperty that has been changed and it&#39;s new value">
+<testcase classname="Logger mongoose plugin getDelta for objects containing other objects" name="if modified an array element of subproperty should return array subproperty that has been changed and it&#39;s new value" time="0.001">
 </testcase>
-<testcase classname="Logger mongoose plugin getDelta for objects containing other objects" name="should return sub property that has been deleted with a flag &#39;$DELETED&#39; as it&#39;s name and in __deletedKeys array" time="0.001">
+<testcase classname="Logger mongoose plugin getDelta for objects containing other objects" name="should return sub property that has been deleted with a flag &#39;$DELETED&#39; as it&#39;s name and in __deletedKeys array">
 </testcase>
-<testcase classname="Logger mongoose plugin getDelta for objects containing other objects" name="if modified a subarray element of subproperty should return array sub property that has been changed and it&#39;s new value">
+<testcase classname="Logger mongoose plugin getDelta for objects containing other objects" name="if modified a subarray element of subproperty should return array sub property that has been changed and it&#39;s new value" time="0.001">
 </testcase>
 </testsuite>
-<testsuite name="Logger mongoose plugin getDelta for objects containing ObjectIds" tests="6" failures="0" skipped="0" timestamp="Fri, 26 Aug 2016 09:48:42 GMT" time="0.017">
+<testsuite name="Logger mongoose plugin getDelta for objects containing ObjectIds" tests="6" failures="0" skipped="0" timestamp="Fri, 02 Mar 2018 04:16:06 GMT" time="0.05">
 <testcase classname="Logger mongoose plugin getDelta for objects containing ObjectIds" name="should return empty result for the same objects">
 </testcase>
 <testcase classname="Logger mongoose plugin getDelta for objects containing ObjectIds" name="should return empty result for cloned objects" time="0.001">
@@ -150,39 +150,39 @@
 </testcase>
 <testcase classname="Logger mongoose plugin getDelta for objects containing ObjectIds" name="should return property that has been added and it&#39;s value">
 </testcase>
-<testcase classname="Logger mongoose plugin getDelta for objects containing ObjectIds" name="should return property that has been deleted with a flag &#39;$DELETED&#39; as it&#39;s name and in __deletedKeys array">
+<testcase classname="Logger mongoose plugin getDelta for objects containing ObjectIds" name="should return property that has been deleted with a flag &#39;$DELETED&#39; as it&#39;s name and in __deletedKeys array" time="0.001">
 </testcase>
 </testsuite>
-<testsuite name="Logger mongoose plugin getDelta for mongoose models" tests="5" failures="0" skipped="0" timestamp="Fri, 26 Aug 2016 09:48:42 GMT" time="0.764">
+<testsuite name="Logger mongoose plugin getDelta for mongoose models" tests="5" failures="0" skipped="0" timestamp="Fri, 02 Mar 2018 04:16:06 GMT" time="0.113">
 <testcase classname="Logger mongoose plugin getDelta for mongoose models" name="should return empty result for the same objects" time="0.001">
 </testcase>
-<testcase classname="Logger mongoose plugin getDelta for mongoose models" name="should return empty result for identical objects" time="0.002">
+<testcase classname="Logger mongoose plugin getDelta for mongoose models" name="should return empty result for identical objects" time="0.001">
 </testcase>
-<testcase classname="Logger mongoose plugin getDelta for mongoose models" name="should return property that has been changed and it&#39;s new value" time="0.745">
+<testcase classname="Logger mongoose plugin getDelta for mongoose models" name="should return property that has been changed and it&#39;s new value" time="0.062">
 </testcase>
-<testcase classname="Logger mongoose plugin getDelta for mongoose models" name="should return property that has been added and it&#39;s value">
+<testcase classname="Logger mongoose plugin getDelta for mongoose models" name="should return property that has been added and it&#39;s value" time="0.002">
 </testcase>
 <testcase classname="Logger mongoose plugin getDelta for mongoose models" name="should return property that has been deleted with a flag &#39;$DELETED&#39; as it&#39;s name and in __deletedKeys array" time="0.001">
 </testcase>
 </testsuite>
-<testsuite name="Logger mongoose plugin getDelta diff options" tests="1" failures="0" skipped="0" timestamp="Fri, 26 Aug 2016 09:48:43 GMT" time="0.636">
+<testsuite name="Logger mongoose plugin getDelta diff options" tests="1" failures="0" skipped="0" timestamp="Fri, 02 Mar 2018 04:16:06 GMT" time="0.04">
 <testcase classname="Logger mongoose plugin getDelta diff options" name="should not return skipped path if it is changed">
 </testcase>
 </testsuite>
-<testsuite name="Logger configuration" tests="3" failures="0" skipped="0" timestamp="Fri, 26 Aug 2016 09:48:44 GMT" time="0.015">
-<testcase classname="Logger configuration" name="should throw error when initalised without configuration" time="0.001">
+<testsuite name="Logger configuration" tests="3" failures="0" skipped="0" timestamp="Fri, 02 Mar 2018 04:16:06 GMT" time="0.06">
+<testcase classname="Logger configuration" name="should throw error when initalised without configuration" time="0.007">
 </testcase>
-<testcase classname="Logger configuration" name="should throw error when used without configuration">
+<testcase classname="Logger configuration" name="should throw error when used without configuration" time="0.008">
 </testcase>
 <testcase classname="Logger configuration" name="should throw error when set empty configuration">
 </testcase>
 </testsuite>
-<testsuite name="Logger reconfiguration" tests="1" failures="0" skipped="0" timestamp="Fri, 26 Aug 2016 09:48:44 GMT" time="1.122">
-<testcase classname="Logger reconfiguration" name="should not loose events during reconfiguration" time="1.114">
+<testsuite name="Logger reconfiguration" tests="1" failures="0" skipped="0" timestamp="Fri, 02 Mar 2018 04:16:06 GMT" time="0.355">
+<testcase classname="Logger reconfiguration" name="should not loose events during reconfiguration" time="0.309">
 </testcase>
 </testsuite>
-<testsuite name="Logger stopping" tests="1" failures="0" skipped="0" timestamp="Fri, 26 Aug 2016 09:48:45 GMT" time="0.623">
-<testcase classname="Logger stopping" name="should not loose events during stopping" time="0.614">
+<testsuite name="Logger stopping" tests="1" failures="0" skipped="0" timestamp="Fri, 02 Mar 2018 04:16:06 GMT" time="0.252">
+<testcase classname="Logger stopping" name="should not loose events during stopping" time="0.207">
 </testcase>
 </testsuite>
 </testsuites>

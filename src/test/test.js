@@ -18,6 +18,7 @@ export let SampleSubItem;
 export async function cleanDb(url) {
   const database = await MongoClient.connect(url);
   await database.dropDatabase();
+  await database.createCollection('events');
   await database.close();
 }
 async function resetDb() {
