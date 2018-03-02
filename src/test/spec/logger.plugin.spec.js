@@ -11,7 +11,7 @@ const config = require('../../config/config');
 const collection = config.collection;
 
 const ignoredObjectFields = ['__logBehaviour'];
-const defaultTimeout = 5000;
+const defaultTimeout = 1000;
 const loggerInterval = 100;
 
 function shouldHaveOnlyAllowedKeys(object, allowed) {
