@@ -3,13 +3,26 @@ if (!global._babelPolyfill) {
 }
 const winston = require('winston');
 
-
-import { getDelta, pathsLoggedAlways, loggableObject, setActor, setAttributes, getTrace } from './util';
+import {
+  getSpath,
+  setSpath,
+  getDelta,
+  pathsLoggedAlways,
+  loggableObject,
+  setActor,
+  setAttributes,
+  getTrace
+} from './util';
 
 // reexporting for specs
-export { getDelta, pathsLoggedAlways, loggableObject, setActor, setAttributes };
+export {
+  getDelta,
+  pathsLoggedAlways,
+  loggableObject,
+  setActor,
+  setAttributes
+};
 
-import { getSpath, setSpath } from 'kal-dep-mapreduce-helper';
 export const Action = {
   deleted: 'deleted',
   created: 'created',
@@ -69,12 +82,13 @@ function createMongoosePromise(mongooseInstance, resolver) {
 }
 export function patchQueryPrototype(mongooseInstance) {
   //  hack to ensure mongoose-deep-populate patch is applied first
-  require('mongoose-deep-populate')(mongooseInstance);
+  
+  require('mongoose-deep-populate')(mongooseInstance);  
   const Mongoose = Object.getPrototypeOf(mongooseInstance);
   const Query = mongooseInstance.Query;
   const _exec = Query.prototype.exec;
 
-  if (!Query.prototype._klLoggerPatched) {
+  if (!Query.prototype._klLoggerPatched) {    
     Query.prototype.by = function setQueryActor(actor) {
       this._klLoggerActor = actor;
       return this;
@@ -88,9 +102,11 @@ export function patchQueryPrototype(mongooseInstance) {
     Query.prototype.exec = function klLoggerPluginPatchedExec(_op, _cb) {
       const klLoggerActor = this._klLoggerActor;
       const klLoggerAttributes = this._klLoggerAttributes;
+      
       if (!klLoggerActor && !klLoggerAttributes) {
         return _exec.call(this, _op, _cb);
       }
+      
 
       let cb = _cb;
       let op = _op;
@@ -162,6 +178,7 @@ export function patchDocumentPrototype(mongooseInstance) {
         this._klLoggerLoggerPatched = true;
         const origSave = this.save;
         const origRemove = this.remove;
+
         this.save = function klLoggerPluginPatchedSave(_op, _cb) {
           let cb = _cb;
           let op = _op;
@@ -174,6 +191,7 @@ export function patchDocumentPrototype(mongooseInstance) {
           if (calls.length) {
             this._klLoggerSaveCallStack = calls;
           }
+          
           const promise = createMongoosePromise(mongooseInstance, (resolve, reject) => {
             origSave.call(this, op).then((savedDoc) => {
               if (calls.length) {
@@ -182,6 +200,7 @@ export function patchDocumentPrototype(mongooseInstance) {
               if (cb) {
                 cb(undefined, savedDoc);
               }
+              
               resolve(savedDoc);
             }).catch(error => {
               if (cb) {

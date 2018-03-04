@@ -1,4 +1,4 @@
-require('kal-dep-gulp-tasks').loadTasks(
+require('kl-gulp-tasks').loadTasks(
   {
     source: 'src/**/*.js',
   }

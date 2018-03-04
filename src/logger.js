@@ -209,6 +209,7 @@ export class Logger {
         writeStream.on('error', this.handleError);
         winston.info('Event logger connected to DB', this.configuration.url);
       }
+  
       this._stream = through2.obj(function prepare(event, enc, callback) {
         if (!event.actor) {
           event.actor = null;
@@ -254,6 +255,7 @@ export class Logger {
         };
         try {
           this.stream.once('error', handler);
+
           this.write(payload, null, (error) => {
             if (!errorHappened) {
               if (error) {
@@ -263,6 +265,7 @@ export class Logger {
               }
             }
           });
+
         } catch (error) {
           if (!errorHappened) {
             reject(error);
@@ -280,13 +283,13 @@ export class Logger {
       if (idx !== -1) {
         this.logPromises.splice(idx, 1);
       }
-      callback();
+      if (callback) callback();
     }).catch(error => {
       const idx = this.logPromises.indexOf(promise);
       if (idx !== -1) {
         this.logPromises.splice(idx, 1);
       }
-      callback(error);
+      if (callback) callback(error);
     });
     return promise;
   }
