@@ -100,7 +100,7 @@
 <testsuite name="Caller logging Creating" tests="2" failures="0" skipped="0" timestamp="Tue, 06 Mar 2018 02:40:54 GMT" time="0.089">
 <testcase classname="Caller logging Creating" name="should set caller to the document being saved" time="0.072">
 </testcase>
-<testcase classname="Caller logging Creating" name="should set caller to the saved document" time="0.006">
+<testcase classname="Caller logging Creating" name="should set caller to the saved document" time="0.008">
 </testcase>
 </testsuite>
 <testsuite name="Caller logging Removing" tests="1" failures="0" skipped="0" timestamp="Tue, 06 Mar 2018 02:40:55 GMT" time="0.091">
@@ -116,7 +116,7 @@
 </testcase>
 <testcase classname="Logger mongoose plugin getDelta for objects containing only scalars" name="should return property that has been changed and it&#39;s new value">
 </testcase>
-<testcase classname="Logger mongoose plugin getDelta for objects containing only scalars" name="should return property that has been added and it&#39;s value" time="0.001">
+<testcase classname="Logger mongoose plugin getDelta for objects containing only scalars" name="should return property that has been added and it&#39;s value">
 </testcase>
 <testcase classname="Logger mongoose plugin getDelta for objects containing only scalars" name="should return property that has been deleted with a flag &#39;$DELETED&#39; as it&#39;s name and in __deletedKeys array">
 </testcase>
@@ -134,13 +134,13 @@
 </testcase>
 <testcase classname="Logger mongoose plugin getDelta for objects containing arrays" name="should return property that has been added and it&#39;s value">
 </testcase>
-<testcase classname="Logger mongoose plugin getDelta for objects containing arrays" name="should return property that has been deleted with a flag &#39;$DELETED&#39; as it&#39;s name and in __deletedKeys array">
+<testcase classname="Logger mongoose plugin getDelta for objects containing arrays" name="should return property that has been deleted with a flag &#39;$DELETED&#39; as it&#39;s name and in __deletedKeys array" time="0.001">
 </testcase>
 </testsuite>
 <testsuite name="Logger mongoose plugin getDelta for objects containing other objects" tests="6" failures="0" skipped="0" timestamp="Tue, 06 Mar 2018 02:40:55 GMT" time="0.008">
 <testcase classname="Logger mongoose plugin getDelta for objects containing other objects" name="should return empty result for the same objects">
 </testcase>
-<testcase classname="Logger mongoose plugin getDelta for objects containing other objects" name="should return empty result for cloned objects">
+<testcase classname="Logger mongoose plugin getDelta for objects containing other objects" name="should return empty result for cloned objects" time="0.001">
 </testcase>
 <testcase classname="Logger mongoose plugin getDelta for objects containing other objects" name="should return empty result for identical objects" time="0.001">
 </testcase>
