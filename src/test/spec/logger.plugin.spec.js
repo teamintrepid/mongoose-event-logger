@@ -377,11 +377,10 @@ describe('Events logging', function () {
   });
   runSuite('with log behaviour [snapshot]', () => {
     let sample;
-    before('create sample', w(async () => {
+    beforeEach('create sample', w(async () => {
       sample = await new Sample({
-        name: 'some',
+        name: 'some1',
         strings: ['A', 'B', 'C'],
-        code: 'FFCC0B',
       }).by('specs').save();
       const options = sample.loggingOptions();
       options.if[Action.updated].by[Actor.system] = Behaviour.snapshot;
@@ -607,7 +606,7 @@ describe('Events logging', function () {
         name: 'some',
         strings: ['A', 'B', 'C'],
       }).by('specs').save();
-      const options = Sample.loggingOptions();
+      const options = sample.loggingOptions();
       options.if[Action.updated].by[Actor.system] = Behaviour.snapshotAndDelta;
       options.if[Action.created].by[Actor.system] = Behaviour.snapshotAndDelta;
       options.if[Action.deleted].by[Actor.system] = Behaviour.snapshotAndDelta;

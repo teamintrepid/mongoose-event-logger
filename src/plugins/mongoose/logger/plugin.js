@@ -283,7 +283,6 @@ export function plugin(mongooseInstance) {
     schema.post('findOneAndUpdate', async function(result, done) {
       if (!result) return;
 
-
       result._klLoggerIsNew = this._klLoggerIsNew;
       result._klLoggerModifiedPaths = this._klLoggerModifiedPaths;
       result._klLoggerInitialDoc = this._klLoggerInitialDoc;
@@ -297,8 +296,6 @@ export function plugin(mongooseInstance) {
     });  
     schema.post('save', (savedDoc, done) => {
       const opts = savedDoc._klLoggerOptions || savedDoc.schema._klLoggerOptions || _options;
-      // console.log('1', _options.if.updated.by);
-      // console.log('3', savedDoc.schema._klLoggerOptions.if.updated.by);
       const when = new Date();
       const modelName = savedDoc.constructor.modelName;
       const objectType = `${opts.objectTypePrefix}${modelName}`;
