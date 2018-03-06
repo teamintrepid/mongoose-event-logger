@@ -178,6 +178,7 @@ export function patchDocumentPrototype(mongooseInstance) {
         this._klLoggerLoggerPatched = true;
         const origSave = this.save;
         const origRemove = this.remove;
+        const origFindOneAndUpdate = Document.findOneAndUpdate;
 
         this.save = function klLoggerPluginPatchedSave(_op, _cb) {
           let cb = _cb;
@@ -188,7 +189,7 @@ export function patchDocumentPrototype(mongooseInstance) {
             op = null;
           }
           const calls = getTrace();
-          if (calls.length) {
+          if (calls.length && !this._klLoggerStaticContext) {
             this._klLoggerSaveCallStack = calls;
           }
           
@@ -218,6 +219,16 @@ export function patchDocumentPrototype(mongooseInstance) {
           }
           return origRemove.call(this, ...removeArgs);
         };
+
+        Document.findOneAndUpdate = function klLoggerPluginPatchedFindOneAndUpdate(...args) {
+          const calls = getTrace();
+          if (calls.length) {
+            // Save the callstack to the querys options because 'this' refers to the model
+            if (!args[2]) args[2] = {};
+            args[2]._klLoggerSaveCallStack = calls;
+          }
+          return origFindOneAndUpdate.call(this, ...args);
+        };
       }
       return registerHooksFromSchemaReturn;
     };
@@ -241,12 +252,53 @@ export function plugin(mongooseInstance) {
     schema._klLoggerLogger = Logger;
     schema._klLoggerOptions = mOptions;
     schema.pre('save', function preSave(next) {
-      this._klLoggerModifiedPaths = this.modifiedPaths();
-      this._klLoggerIsNew = this.isNew;
+      // Check if this has already been set by another pre hook
+      if (!this._klLoggerStaticContext) {
+        this._klLoggerModifiedPaths = this.modifiedPaths();
+        this._klLoggerIsNew = this.isNew;
+      }
       next();
     });
+    schema.pre('findOneAndUpdate', async function preUpdate(next) {
+      const search = this._conditions || {};
+      const options = this.options || {};
+      const updated = this._update || {};
+
+      const callstack = options._klLoggerSaveCallStack;
+      delete options._klLoggerSaveCallStack;      
+
+      const existing = await this.findOne(search);
+      if (existing) {
+        this._klLoggerInitialDoc = existing.loggableObject();
+      }
+
+      // filter out mongo fields starting with $
+      const keys = Object.keys(updated).filter(x => !x.includes('$'));
+
+      this._klLoggerModifiedPaths = keys;
+      this._klLoggerIsNew = !existing && options.upsert;
+      this._klLoggerSaveCallStack = callstack;
+      next();
+    });
+    schema.post('findOneAndUpdate', async function(result, done) {
+      if (!result) return;
+
+
+      result._klLoggerIsNew = this._klLoggerIsNew;
+      result._klLoggerModifiedPaths = this._klLoggerModifiedPaths;
+      result._klLoggerInitialDoc = this._klLoggerInitialDoc;
+      result._klLoggerActor = this._klLoggerActor;
+      result._klLoggerSaveCallStack = this._klLoggerSaveCallStack;
+
+      // Set flag to make sure that the pre-save doesnt overide this info
+      result._klLoggerStaticContext = true;
+      await result.save();
+      done();
+    });  
     schema.post('save', (savedDoc, done) => {
       const opts = savedDoc._klLoggerOptions || savedDoc.schema._klLoggerOptions || _options;
+      // console.log('1', _options.if.updated.by);
+      // console.log('3', savedDoc.schema._klLoggerOptions.if.updated.by);
       const when = new Date();
       const modelName = savedDoc.constructor.modelName;
       const objectType = `${opts.objectTypePrefix}${modelName}`;
@@ -386,8 +438,8 @@ export function plugin(mongooseInstance) {
       return this;
     };
     schema.statics.setLoggingOptions = function modelStaticSetLoggingOptions(opts) {
-      const moptions = mergeOptions(this._klLoggerOptions || _options, opts);
-      this._klLoggerOptions = moptions;
+      const moptions = mergeOptions(this.schema._klLoggerOptions || _options, opts);
+      this.schema._klLoggerOptions = moptions;
     };
     schema.statics.loggingOptions = function modelStaticLoggingOptions() {
       const opts = this._klLoggerOptions || _options;

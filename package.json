@@ -1,6 +1,6 @@
 {
   "name": "mongoose-event-logger",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "Events logger plugin for mongoose",
   "main": "lib/index.js",
   "scripts": {

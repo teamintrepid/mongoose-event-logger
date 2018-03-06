@@ -377,16 +377,65 @@ describe('Events logging', function () {
   });
   runSuite('with log behaviour [snapshot]', () => {
     let sample;
-    beforeEach('create sample', w(async () => {
+    before('create sample', w(async () => {
       sample = await new Sample({
         name: 'some',
         strings: ['A', 'B', 'C'],
+        code: 'FFCC0B',
       }).by('specs').save();
       const options = sample.loggingOptions();
       options.if[Action.updated].by[Actor.system] = Behaviour.snapshot;
       options.if[Action.created].by[Actor.system] = Behaviour.snapshot;
       options.if[Action.deleted].by[Actor.system] = Behaviour.snapshot;
       sample.setLoggingOptions(options);
+    }));
+    it('should not log when only skipped properties are changed', w(async () => {
+      sample.setLoggingOptions({ skip: ['name'] });
+      sample.name = 'some';
+      const when = new Date();
+      await sleep(1);
+      await sample.save();
+      await sleep(loggerInterval);
+      const loggedEvents = await db.collection(collection)
+        .find({
+          'object._id': sample._id,
+          objectType: 'Sample',
+          action: 'updated',
+          actor: 'specs',
+          when: { $gte: when },
+        }).toArray();
+      loggedEvents.should.have.lengthOf(0);
+    }));
+    it('should log object snapshot if at least one non-skipped property was changed', w(async () => {
+      sample.setLoggingOptions({ skip: ['name'] });
+      sample.name = 'some1';
+      sample.code = 'FFCC0A';
+      const when = new Date();
+      await sleep(1);
+      await sample.save();
+      const line = lineNumber();
+      await sleep(loggerInterval);
+      const loggedEvents = await db.collection(collection)
+        .find({
+          'object._id': sample._id,
+          objectType: 'Sample',
+          action: 'updated',
+          actor: 'specs',
+          when: { $gte: when },
+        }).toArray();
+      loggedEvents.should.have.lengthOf(1);
+      const updateEvent = loggedEvents[0];
+      shouldHavePathsLoggedAlways(updateEvent.object);
+      updateEvent.object.should.have.a.property('__logBehaviour', Behaviour.snapshot);
+      updateEvent.object.should.have.a.property('__snapshot');
+      updateEvent.object.should.not.have.a.property('__delta');
+      const object = updateEvent.object.__snapshot;
+      for (const key of Object.keys(sample._doc)) {
+        object.should.have.a.property(key);
+        should(object[key].toString()).be.equal(sample._doc[key].toString());
+      }
+      updateEvent.should.have.a.property('callStack');
+      updateEvent.callStack[0].includes(`${currentFileName}:${line - 1}`).should.be.ok();
     }));
     it('should not log when only skipped properties are changed', w(async () => {
       sample.setLoggingOptions({ skip: ['name'] });
@@ -407,8 +456,8 @@ describe('Events logging', function () {
     }));
     it('should log object snapshot if at least one non-skipped property was changed', w(async () => {
       sample.setLoggingOptions({ skip: ['name'] });
-      sample.name = 'some1';
-      sample.code = 'FFCC0A';
+      sample.name = 'some';
+      sample.code = 'FFCC0B';
       const when = new Date();
       await sleep(1);
       await sample.save();
@@ -485,6 +534,71 @@ describe('Events logging', function () {
         should(object[key].toString()).be.equal(sample._doc[key].toString());
       }
     }));
+    let newSample = {};
+    it('should log object snapshot if created using findOneAndUpdate', w(async () => {
+      const when = new Date();
+      await sleep(1);
+      const line = lineNumber();      
+      newSample = await Sample.findOneAndUpdate(
+        { code: 'AF1239' },
+        { code: 'FF1122' },
+        { upsert: true, new: true }
+      ).by('specs').exec();
+      await sleep(loggerInterval);
+      const loggedEvents = await db.collection(collection)
+        .find({
+          'object._id': newSample._id,
+          objectType: 'Sample',
+          action: 'created',
+          actor: 'specs',
+          when: { $gte: when },
+        }).toArray();
+      loggedEvents.should.have.lengthOf(1);
+      const updateEvent = loggedEvents[0];
+      shouldHavePathsLoggedAlways(updateEvent.object);
+      updateEvent.object.should.have.a.property('__logBehaviour', Behaviour.snapshot);
+      updateEvent.object.should.have.a.property('__snapshot');
+      updateEvent.object.should.not.have.a.property('__delta');
+      const object = updateEvent.object.__snapshot;
+      for (const key of Object.keys(newSample._doc)) {
+        object.should.have.a.property(key);
+        should(object[key].toString()).be.equal(newSample._doc[key].toString());
+      }
+      updateEvent.should.have.a.property('callStack');
+      updateEvent.callStack[0].includes(`${currentFileName}:${line + 1}`).should.be.ok();
+    }));
+    it('should log object snapshot if updated using findOneAndUpdate', w(async () => {
+      const when = new Date();
+      await sleep(1);
+      const line = lineNumber();      
+      newSample = await Sample.findOneAndUpdate(
+        { _id: newSample._id },
+        { code: 'FF1123' },
+        { upsert: true, new: true }
+      ).by('specs').exec();
+      await sleep(loggerInterval);
+      const loggedEvents = await db.collection(collection)
+        .find({
+          'object._id': newSample._id,
+          objectType: 'Sample',
+          action: 'updated',
+          actor: 'specs',
+          when: { $gte: when },
+        }).toArray();
+      loggedEvents.should.have.lengthOf(1);
+      const updateEvent = loggedEvents[0];
+      shouldHavePathsLoggedAlways(updateEvent.object);
+      updateEvent.object.should.have.a.property('__logBehaviour', Behaviour.snapshot);
+      updateEvent.object.should.have.a.property('__snapshot');
+      updateEvent.object.should.not.have.a.property('__delta');
+      const object = updateEvent.object.__snapshot;
+      for (const key of Object.keys(newSample._doc)) {
+        object.should.have.a.property(key);
+        should(object[key].toString()).be.equal(newSample._doc[key].toString());
+      }
+      updateEvent.should.have.a.property('callStack');
+      updateEvent.callStack[0].includes(`${currentFileName}:${line + 1}`).should.be.ok();
+    }));
   });
   runSuite('with log behaviour [snapshotAndDelta]', () => {
     let sample;
@@ -493,11 +607,12 @@ describe('Events logging', function () {
         name: 'some',
         strings: ['A', 'B', 'C'],
       }).by('specs').save();
-      const options = sample.loggingOptions();
+      const options = Sample.loggingOptions();
       options.if[Action.updated].by[Actor.system] = Behaviour.snapshotAndDelta;
       options.if[Action.created].by[Actor.system] = Behaviour.snapshotAndDelta;
       options.if[Action.deleted].by[Actor.system] = Behaviour.snapshotAndDelta;
       sample.setLoggingOptions(options);
+      Sample.setLoggingOptions(options);
     }));
     it('should not log when only skipped properties are changed', w(async () => {
       sample.setLoggingOptions({ skip: ['name'] });
@@ -551,6 +666,41 @@ describe('Events logging', function () {
       updateEvent.should.have.a.property('callStack');
       updateEvent.callStack[0].includes(`${currentFileName}:${line - 1}`).should.be.ok();
     }));
+    it('should log object delta if updated using findOneAndUpdate', w(async () => {
+      const when = new Date();
+      await sleep(1);
+      const line = lineNumber();      
+      sample = await Sample.findOneAndUpdate(
+        { _id: sample._id },
+        { code: 'FF1123' },
+        { upsert: true, new: true }
+      ).by('specs').exec();
+      await sleep(loggerInterval);
+      const loggedEvents = await db.collection(collection)
+        .find({
+          'object._id': sample._id,
+          objectType: 'Sample',
+          action: 'updated',
+          actor: 'specs',
+          when: { $gte: when },
+        }).toArray();
+      loggedEvents.should.have.lengthOf(1);
+      const updateEvent = loggedEvents[0];
+      shouldHavePathsLoggedAlways(updateEvent.object);
+      updateEvent.object.should.have.a.property('__logBehaviour', Behaviour.snapshotAndDelta);
+      updateEvent.object.should.have.a.property('__snapshot');
+      updateEvent.object.should.have.a.property('__delta');
+      const snapshot = updateEvent.object.__snapshot;
+      for (const key of Object.keys(sample._doc)) {
+        snapshot.should.have.a.property(key);
+        should(snapshot[key].toString()).be.equal(sample._doc[key].toString());
+      }
+      const delta = updateEvent.object.__delta;
+      shouldHaveOnlyAllowedKeys(delta, ['code']);
+      delta.should.have.a.property('code', sample.code);
+      updateEvent.should.have.a.property('callStack');
+      updateEvent.callStack[0].includes(`${currentFileName}:${line + 1}`).should.be.ok();
+    }));
   });
   runSuite('with log behaviour [id]', () => {
     let sample;
@@ -564,6 +714,7 @@ describe('Events logging', function () {
       options.if[Action.deleted].by[Actor.system] = Behaviour.id;
       options.if[Action.created].by[Actor.system] = Behaviour.id;
       sample.setLoggingOptions(options);
+      Sample.setLoggingOptions(options);
     }));
     it('should not log when only skipped properties are changed', w(async () => {
       sample.setLoggingOptions({ skip: ['name'] });
@@ -642,6 +793,37 @@ describe('Events logging', function () {
       shouldHavePathsLoggedAlways(event.object);
       shouldHaveOnlyAllowedKeys(event.object, []);
       event.object.should.have.a.property('__logBehaviour', Behaviour.id);
+    }));
+    it('should log object id if updated using findOneAndUpdate', w(async () => {
+      const when = new Date();
+      await sleep(1);
+      const line = lineNumber();      
+      sample = await Sample.findOneAndUpdate(
+        { _id: sample._id },
+        { code: 'FF1123' },
+        { upsert: true, new: true }
+      ).by('specs').exec();
+      await sleep(loggerInterval);
+      const loggedEvents = await db.collection(collection)
+        .find({
+          'object._id': sample._id,
+          objectType: 'Sample',
+          action: 'updated',
+          actor: 'specs',
+          when: { $gte: when },
+        }).toArray();
+      loggedEvents.should.have.lengthOf(1);
+      const updateEvent = loggedEvents[0];
+      updateEvent.object.should.have.a.property('__logBehaviour', Behaviour.id);
+      updateEvent.object.should.not.have.a.property('__snapshot');
+      updateEvent.object.should.not.have.a.property('__delta');
+      shouldHavePathsLoggedAlways(updateEvent.object);
+      shouldHaveOnlyAllowedKeys(updateEvent.object, []);
+
+      updateEvent.object.should.have.a.property('_id');
+      updateEvent.object._id.toString().should.be.equal(sample._id.toString());
+      updateEvent.should.have.a.property('callStack');
+      updateEvent.callStack[0].includes(`${currentFileName}:${line + 1}`).should.be.ok();
     }));
   });
   runSuite('with object type prefix', () => {
