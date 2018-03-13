@@ -1,5 +1,4 @@
 import { Mongoose, Model } from 'mongoose';
-import { pathsLoggedAlways, Action, Behaviour, Actor } from './src';
 
 export interface LoggerConfig {
   url: string;
@@ -35,5 +34,23 @@ export function getDelta(ev1: any, ev2: any, pathsToInclude: string[],
 export function setActor(model: Model<any>, actor: string, level: number, mongooseInstance: Mongoose): void;
 export function loggableObject(): any;
 
-export { pathsLoggedAlways, Action, Behaviour, Actor };
+
+export enum Action {
+  deleted = 'deleted',
+  created = 'created',
+  updated = 'updated',
+}
+
+export enum Actor {
+  user = 'user',
+  system = 'system',
+}
+
+export enum Behaviour {
+  snapshot = 'snapshot',
+  delta = 'delta',
+  snapshotAndDelta = 'snapshotAndDelta',
+  id = 'id',
+}
+
 export function klLoggerPlugin(mongooseInstance: Mongoose): any;

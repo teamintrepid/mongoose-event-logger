@@ -93,6 +93,7 @@ export function patchQueryPrototype(mongooseInstance) {
       this._klLoggerActor = actor;
       return this;
     };
+
       /**
      * Monkey-patches `exec` to add logger hook.
      * @param op the operation to be executed.
@@ -102,11 +103,9 @@ export function patchQueryPrototype(mongooseInstance) {
     Query.prototype.exec = function klLoggerPluginPatchedExec(_op, _cb) {
       const klLoggerActor = this._klLoggerActor;
       const klLoggerAttributes = this._klLoggerAttributes;
-      
       if (!klLoggerActor && !klLoggerAttributes) {
         return _exec.call(this, _op, _cb);
       }
-      
 
       let cb = _cb;
       let op = _op;
@@ -118,6 +117,7 @@ export function patchQueryPrototype(mongooseInstance) {
         cb = cb || (() => {});
       }
       const promise = createMongoosePromise(mongooseInstance, (resolve, reject) => {
+        
         _exec.call(this, op, (err, result) => {
           if (err) {
             cb(err);
@@ -170,16 +170,16 @@ export function patchDocumentPrototype(mongooseInstance) {
   const Document = mongooseInstance.Model;
 
   if (!Document.prototype._klLoggerPatched) {
-    Document.prototype._klLoggerPatched = true;
+    Document.prototype._klLoggerPatched = true;    
     const origRegisterHooksFromSchema = Document.prototype.$__registerHooksFromSchema;
     Document.prototype.$__registerHooksFromSchema = function klLoggerPluginPatchedHooksRegistration(...args) {
+      
       const registerHooksFromSchemaReturn = origRegisterHooksFromSchema.call(this, ...args);
       if (!this._klLoggerLoggerPatched) {
         this._klLoggerLoggerPatched = true;
         const origSave = this.save;
         const origRemove = this.remove;
         const origFindOneAndUpdate = Document.findOneAndUpdate;
-
         this.save = function klLoggerPluginPatchedSave(_op, _cb) {
           let cb = _cb;
           let op = _op;
@@ -271,6 +271,7 @@ export function plugin(mongooseInstance) {
       if (existing) {
         this._klLoggerInitialDoc = existing.loggableObject();
       }
+      
 
       // filter out mongo fields starting with $
       const keys = Object.keys(updated).filter(x => !x.includes('$'));
@@ -278,11 +279,12 @@ export function plugin(mongooseInstance) {
       this._klLoggerModifiedPaths = keys;
       this._klLoggerIsNew = !existing && options.upsert;
       this._klLoggerSaveCallStack = callstack;
+      
       next();
     });
     schema.post('findOneAndUpdate', async function(result, done) {
-      if (!result) return;
-
+      
+      if (!result) return done();
       result._klLoggerIsNew = this._klLoggerIsNew;
       result._klLoggerModifiedPaths = this._klLoggerModifiedPaths;
       result._klLoggerInitialDoc = this._klLoggerInitialDoc;
@@ -291,7 +293,9 @@ export function plugin(mongooseInstance) {
 
       // Set flag to make sure that the pre-save doesnt overide this info
       result._klLoggerStaticContext = true;
-      await result.save();
+
+      // Skip validation when because findOneAndUpdate does not do model validation.
+      await result.save({ validateBeforeSave: false });
       done();
     });  
     schema.post('save', (savedDoc, done) => {
