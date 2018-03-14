@@ -305,6 +305,116 @@ describe('Events logging', function () {
       object.strings.toString().should.be.equal(sample.strings.toString());
     }));
   });
+  runSuite('Document changes using findOneAndUpdate', () => {
+    let sample;
+    it('should log object snapshot if created using findOneAndUpdate without new doc', w(async () => {
+        const when = new Date();
+        await sleep(1);
+        const line = lineNumber();
+        await Sample.findOneAndUpdate(
+          { code: 'xxxxx' },
+          {
+            code: 'asasas',
+            name: 'some name',
+          },
+          { upsert: true, new: false }
+        ).by('specs').exec();
+        sample = await Sample.findOne({ code: 'asasas' });
+        await sample.remove();
+        await sleep(loggerInterval);
+
+        const loggedEvents = await db.collection(collection)
+          .find({
+            'object._id': sample._id,
+            objectType: 'Sample',
+            action: 'created',
+            actor: 'specs',
+            when: { $gte: when },
+          }).toArray();
+        
+        loggedEvents.should.have.lengthOf(1);
+        const updateEvent = loggedEvents[0];
+        shouldHavePathsLoggedAlways(updateEvent.object);
+        updateEvent.object.should.have.a.property('__logBehaviour', Behaviour.snapshot);
+        updateEvent.object.should.have.a.property('__snapshot');
+        updateEvent.object.should.not.have.a.property('__delta');
+        const object = updateEvent.object.__snapshot;
+        object.should.have.a.property('code', 'asasas')
+        updateEvent.should.have.a.property('callStack');
+        updateEvent.callStack[0].includes(`${currentFileName}:${line + 1}`).should.be.ok();
+      }));
+      it('should log object snapshot if created using findOneAndUpdate', w(async () => {
+        const when = new Date();
+        await sleep(1);
+        const line = lineNumber();
+        const sample = await Sample.findOneAndUpdate(
+          { code: 'xxxxx' },
+          {
+            code: 'asasas',
+            name: 'some name',
+          },
+          { upsert: true, new: true }
+        ).by('specs').exec();
+        await sample.by('specs').remove();
+        await sleep(loggerInterval);
+
+        const loggedEvents = await db.collection(collection)
+          .find({
+            'object._id': sample._id,
+            objectType: 'Sample',
+            action: 'created',
+            actor: 'specs',
+            when: { $gte: when },
+          }).toArray();
+        
+        loggedEvents.should.have.lengthOf(1);
+        const updateEvent = loggedEvents[0];
+        shouldHavePathsLoggedAlways(updateEvent.object);
+        updateEvent.object.should.have.a.property('__logBehaviour', Behaviour.snapshot);
+        updateEvent.object.should.have.a.property('__snapshot');
+        updateEvent.object.should.not.have.a.property('__delta');
+        const object = updateEvent.object.__snapshot;
+        object.should.have.a.property('code', 'asasas')
+        updateEvent.should.have.a.property('callStack');
+        updateEvent.callStack[0].includes(`${currentFileName}:${line + 1}`).should.be.ok();
+      }));
+      it('should log object delta if updated using findOneAndUpdate', w(async () => {
+        const sample = await new Sample({ code: 'xxxxxx', name: 'blah' }).by('specs').save();
+        const when = new Date();
+        await sleep(1);
+        const line = lineNumber();
+        await Sample.findOneAndUpdate(
+          { _id: sample._id },
+          {
+            code: 'asasas',
+            name: 'blah',
+          },
+          { upsert: false, new: true }
+        ).by('specs').exec();
+        await sample.by('specs').remove();
+        await sleep(loggerInterval);
+
+        const loggedEvents = await db.collection(collection)
+          .find({
+            'object._id': sample._id,
+            objectType: 'Sample',
+            action: 'updated',
+            actor: 'specs',
+            when: { $gte: when },
+          }).toArray();
+        
+        loggedEvents.should.have.lengthOf(1);
+        const updateEvent = loggedEvents[0];
+        shouldHavePathsLoggedAlways(updateEvent.object);
+        updateEvent.object.should.have.a.property('__logBehaviour', Behaviour.delta);
+        updateEvent.object.should.have.a.property('__delta');
+        const object = updateEvent.object.__delta;
+        object.should.have.a.property('code', 'asasas')
+        object.should.not.have.a.property('name')
+        updateEvent.should.have.a.property('callStack');
+        updateEvent.callStack[0].includes(`${currentFileName}:${line + 1}`).should.be.ok();
+      }));
+  });
   runSuite('Logging options', () => {
     it('should set logging options', w(async () => {
       const sample = await new Sample({ name: 'some' }).by('specs').save();

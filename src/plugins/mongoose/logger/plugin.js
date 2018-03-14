@@ -64,6 +64,26 @@ export function mergeOptions(defaults, current) {
   return res;
 }
 
+function cleanUpdateQuery(update) {
+    if (!update) return {};
+
+    let cleaned = {};
+    Object.keys(update).forEach(key => {
+      if (key === '$set') {
+        // if using set, pull it out of the inner object
+        cleaned = {
+          ...cleaned,
+          ...update[key],
+        };
+      }
+      // filter out mongo fields starting with $
+      if (key.charAt(0) !== '$') {
+        cleaned[key] = update[key];
+      }
+    });
+    return cleaned;
+}
+
 /**
  * Creates a Mongoose promise.
  */
@@ -262,8 +282,8 @@ export function plugin(mongooseInstance) {
     schema.pre('findOneAndUpdate', async function preUpdate(next) {
       const search = this._conditions || {};
       const options = this.options || {};
-      const updated = this._update || {};
-
+      const updated = cleanUpdateQuery(this._update);
+      
       const callstack = options._klLoggerSaveCallStack;
       delete options._klLoggerSaveCallStack;      
 
@@ -271,32 +291,38 @@ export function plugin(mongooseInstance) {
       if (existing) {
         this._klLoggerInitialDoc = existing.loggableObject();
       }
-      
 
-      // filter out mongo fields starting with $
-      const keys = Object.keys(updated).filter(x => !x.includes('$'));
-
-      this._klLoggerModifiedPaths = keys;
       this._klLoggerIsNew = !existing && options.upsert;
+      this._klLoggerQuery = {
+        ...search,
+        ...updated,
+      };
+      this._klLoggerReturnsNew = options.new;
       this._klLoggerSaveCallStack = callstack;
-      
       next();
     });
     schema.post('findOneAndUpdate', async function(result, done) {
+      try {
+        if (!this._klLoggerReturnsNew) {
+          result = await this.findOne(this._klLoggerQuery);
+        }
       
-      if (!result) return done();
-      result._klLoggerIsNew = this._klLoggerIsNew;
-      result._klLoggerModifiedPaths = this._klLoggerModifiedPaths;
-      result._klLoggerInitialDoc = this._klLoggerInitialDoc;
-      result._klLoggerActor = this._klLoggerActor;
-      result._klLoggerSaveCallStack = this._klLoggerSaveCallStack;
-
-      // Set flag to make sure that the pre-save doesnt overide this info
-      result._klLoggerStaticContext = true;
-
-      // Skip validation when because findOneAndUpdate does not do model validation.
-      await result.save({ validateBeforeSave: false });
-      done();
+        if (!result) return done();
+      
+        result._klLoggerIsNew = this._klLoggerIsNew;
+        result._klLoggerInitialDoc = this._klLoggerInitialDoc;
+        result._klLoggerActor = this._klLoggerActor;
+        result._klLoggerSaveCallStack = this._klLoggerSaveCallStack;
+      
+        // Set flag to make sure that the pre-save doesnt overide this info
+        result._klLoggerStaticContext = true;
+      
+        // Skip validation when because findOneAndUpdate does not do model validation.
+        await result.save({ validateBeforeSave: false });
+        done();
+      } catch (err) {
+        return done(err);
+      }
     });  
     schema.post('save', (savedDoc, done) => {
       const opts = savedDoc._klLoggerOptions || savedDoc.schema._klLoggerOptions || _options;
