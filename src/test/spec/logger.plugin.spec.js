@@ -7,7 +7,7 @@ import { pathsLoggedAlways, Actor, Behaviour, Action } from '../../index';
 import { Sample, SampleItem, SampleSubItem, runSuite } from '../test';
 import { lineNumber, fileName } from '../../plugins/mongoose/logger/util';
 import { w } from '../util';
-const config = require('../../config/config');
+import config from '../../config/config';
 const collection = config.collection;
 
 const ignoredObjectFields = ['__logBehaviour'];

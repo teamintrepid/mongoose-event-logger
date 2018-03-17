@@ -9,8 +9,9 @@ if (!global._babelPolyfill) {
 import { w } from './util';
 import { MongoClient } from 'mongodb';
 import { Logger } from '../index';
+import config from '../config/config';
 const mongoose = require('mongoose');
-const config = require('../config/config');
+
 
 export let Sample;
 export let SampleItem;
@@ -52,9 +53,14 @@ export const runSuite = function (name, tests, options) {
   });
 };
 
+before('Init logger', w(async () => {
+  await Logger.init(config);
+}));
+
 require('./spec/logger.plugin.spec');
 require('./spec/logger.util.spec');
 require('./spec/logger.spec');
+
 after('Stop logger', w(async () => {
   await Logger.stop();
 }));

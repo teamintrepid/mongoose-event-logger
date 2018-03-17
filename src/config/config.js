@@ -1,2 +1,5 @@
-process.env.NODE_ENV = process.env.NODE_ENV || 'development';
-module.exports = require(`./env/${process.env.NODE_ENV}.js`);
+export default {
+  url: `mongodb://localhost:27017/event-log`,
+  collection: 'events',
+  shutdownOnSignal: true,
+};

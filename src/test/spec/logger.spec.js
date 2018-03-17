@@ -3,8 +3,8 @@
 /*  eslint-disable no-loop-func */
 
 const should = require('should');
-const config = require('../../config/config');
 const clone = require('clone');
+import config from '../../config/config';
 import { MongoClient } from 'mongodb';
 import { Logger } from '../../index';
 import { runSuite, cleanDb } from '../test';
