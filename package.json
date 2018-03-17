@@ -9,7 +9,7 @@
     "compile-w": "gulp js-run-build",
     "prestart": "gulp js-compile",
     "pretest": "gulp js-compile-covered",
-    "test": "NODE_ENV=test CI=1 gulp test-covered",
+    "test": "NODE_ENV=test CI=1 gulp js-compile && mocha lib/test/test.js",
     "test-w": "NODE_ENV=test gulp js-run-test",
     "prepublish": "npm run recompile",
     "lint": "./node_modules/eslint/bin/eslint.js ./src/**",
