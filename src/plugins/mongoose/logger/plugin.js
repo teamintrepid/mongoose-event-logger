@@ -108,9 +108,9 @@ export function patchQueryPrototype(mongooseInstance) {
   const Query = mongooseInstance.Query;
   const _exec = Query.prototype.exec;
 
-  if (!Query.prototype._klLoggerPatched) {    
+  if (!Query.prototype._eventLoggerPatched) {    
     Query.prototype.by = function setQueryActor(actor) {
-      this._klLoggerActor = actor;
+      this._eventLoggerActor = actor;
       return this;
     };
 
@@ -120,10 +120,10 @@ export function patchQueryPrototype(mongooseInstance) {
      * @param cb the callback.
      * @return {Promise}
      */
-    Query.prototype.exec = function klLoggerPluginPatchedExec(_op, _cb) {
-      const klLoggerActor = this._klLoggerActor;
-      const klLoggerAttributes = this._klLoggerAttributes;
-      if (!klLoggerActor && !klLoggerAttributes) {
+    Query.prototype.exec = function eventLoggerPluginPatchedExec(_op, _cb) {
+      const eventLoggerActor = this._eventLoggerActor;
+      const eventLoggerAttributes = this._eventLoggerAttributes;
+      if (!eventLoggerActor && !eventLoggerAttributes) {
         return _exec.call(this, _op, _cb);
       }
 
@@ -158,19 +158,19 @@ export function patchQueryPrototype(mongooseInstance) {
                     ' lean() results aren\'t supported by log attribution,' +
                     ' consider not using it');
                 }
-                if (klLoggerActor) {
-                  setActor(doc, klLoggerActor, 0, mongooseInstance);
+                if (eventLoggerActor) {
+                  setActor(doc, eventLoggerActor, 0, mongooseInstance);
                 }
-                if (klLoggerAttributes) {
-                  setAttributes(doc, klLoggerAttributes, 0, mongooseInstance);
+                if (eventLoggerAttributes) {
+                  setAttributes(doc, eventLoggerAttributes, 0, mongooseInstance);
                 }
               });
             } else {
-              if (klLoggerActor) {
-                setActor(result, klLoggerActor, 0, mongooseInstance);
+              if (eventLoggerActor) {
+                setActor(result, eventLoggerActor, 0, mongooseInstance);
               }
-              if (klLoggerAttributes) {
-                setAttributes(result, klLoggerAttributes, 0, mongooseInstance);
+              if (eventLoggerAttributes) {
+                setAttributes(result, eventLoggerAttributes, 0, mongooseInstance);
               }
             }
             cb(null, result);
@@ -184,23 +184,23 @@ export function patchQueryPrototype(mongooseInstance) {
       return promise;
     };
   }
-  Query.prototype._klLoggerLoggerPatched = true;
+  Query.prototype._eventLoggerLoggerPatched = true;
 }
 export function patchDocumentPrototype(mongooseInstance) {
   const Document = mongooseInstance.Model;
 
-  if (!Document.prototype._klLoggerPatched) {
-    Document.prototype._klLoggerPatched = true;    
+  if (!Document.prototype._eventLoggerPatched) {
+    Document.prototype._eventLoggerPatched = true;    
     const origRegisterHooksFromSchema = Document.prototype.$__registerHooksFromSchema;
-    Document.prototype.$__registerHooksFromSchema = function klLoggerPluginPatchedHooksRegistration(...args) {
+    Document.prototype.$__registerHooksFromSchema = function eventLoggerPluginPatchedHooksRegistration(...args) {
       
       const registerHooksFromSchemaReturn = origRegisterHooksFromSchema.call(this, ...args);
-      if (!this._klLoggerLoggerPatched) {
-        this._klLoggerLoggerPatched = true;
+      if (!this._eventLoggerLoggerPatched) {
+        this._eventLoggerLoggerPatched = true;
         const origSave = this.save;
         const origRemove = this.remove;
         const origFindOneAndUpdate = Document.findOneAndUpdate;
-        this.save = function klLoggerPluginPatchedSave(_op, _cb) {
+        this.save = function eventLoggerPluginPatchedSave(_op, _cb) {
           let cb = _cb;
           let op = _op;
 
@@ -209,14 +209,14 @@ export function patchDocumentPrototype(mongooseInstance) {
             op = null;
           }
           const calls = getTrace();
-          if (calls.length && !this._klLoggerStaticContext) {
-            this._klLoggerSaveCallStack = calls;
+          if (calls.length && !this._eventLoggerStaticContext) {
+            this._eventLoggerSaveCallStack = calls;
           }
           
           const promise = createMongoosePromise(mongooseInstance, (resolve, reject) => {
             origSave.call(this, op).then((savedDoc) => {
               if (calls.length) {
-                savedDoc._klLoggerSaveCallStack = calls;
+                savedDoc._eventLoggerSaveCallStack = calls;
               }
               if (cb) {
                 cb(undefined, savedDoc);
@@ -232,20 +232,20 @@ export function patchDocumentPrototype(mongooseInstance) {
           });
           return promise;
         };
-        this.remove = function klLoggerPluginPatchedRemove(...removeArgs) {
+        this.remove = function eventLoggerPluginPatchedRemove(...removeArgs) {
           const calls = getTrace();
           if (calls.length) {
-            this._klLoggerRemoveCallStack = calls;
+            this._eventLoggerRemoveCallStack = calls;
           }
           return origRemove.call(this, ...removeArgs);
         };
 
-        Document.findOneAndUpdate = function klLoggerPluginPatchedFindOneAndUpdate(...args) {
+        Document.findOneAndUpdate = function eventLoggerPluginPatchedFindOneAndUpdate(...args) {
           const calls = getTrace();
           if (calls.length) {
             // Save the callstack to the querys options because 'this' refers to the model
             if (!args[2]) args[2] = {};
-            args[2]._klLoggerSaveCallStack = calls;
+            args[2]._eventLoggerSaveCallStack = calls;
           }
           return origFindOneAndUpdate.call(this, ...args);
         };
@@ -269,19 +269,19 @@ export function plugin(mongooseInstance) {
         ' log(object, objectType, action, actor, when)'
       );
     }
-    schema._klLoggerLogger = Logger;
-    schema._klLoggerOptions = mOptions;
+    schema._eventLoggerLogger = Logger;
+    schema._eventLoggerOptions = mOptions;
 
 
     function postSave(savedDoc, done)  {
-      const opts = savedDoc._klLoggerOptions || savedDoc.schema._klLoggerOptions || _options;
+      const opts = savedDoc._eventLoggerOptions || savedDoc.schema._eventLoggerOptions || _options;
       const when = new Date();
       const modelName = savedDoc.constructor.modelName;
       const objectType = `${opts.objectTypePrefix}${modelName}`;
-      const modifiedPaths = savedDoc._klLoggerModifiedPaths;
-      const attributes = loggableObject(savedDoc._klLoggerAttributes, undefined, mongooseInstance);
-      const callStack = savedDoc._klLoggerSaveCallStack;
-      const actor = loggableObject(savedDoc._klLoggerActor, undefined, mongooseInstance);
+      const modifiedPaths = savedDoc._eventLoggerModifiedPaths;
+      const attributes = loggableObject(savedDoc._eventLoggerAttributes, undefined, mongooseInstance);
+      const callStack = savedDoc._eventLoggerSaveCallStack;
+      const actor = loggableObject(savedDoc._eventLoggerActor, undefined, mongooseInstance);
 
       let actorType = Actor.system;
       if (actor && actor.providerData) {
@@ -295,7 +295,7 @@ export function plugin(mongooseInstance) {
       let action;
       let objectToLog;
       let logBehaviour;
-      if (savedDoc._klLoggerIsNew) {
+      if (savedDoc._eventLoggerIsNew) {
         action = Logger.action.created;
         logBehaviour = opts.if[action].by[actorType];
         if (!Object.keys(Behaviour).includes(logBehaviour)) {
@@ -326,7 +326,7 @@ export function plugin(mongooseInstance) {
         const skip = [];
         Array.prototype.push.apply(skip, opts.skip);
         Array.prototype.push.apply(skip, pathsLoggedAlways);
-        const delta = getDelta(savedDoc._klLoggerInitialDoc, currentObject, [], [], skip);
+        const delta = getDelta(savedDoc._eventLoggerInitialDoc, currentObject, [], [], skip);
         if (!Object.keys(delta).length) {
           return done();
         }
@@ -338,14 +338,14 @@ export function plugin(mongooseInstance) {
           }
           case Behaviour.delta: {
             objectToLog.__delta = getDelta(
-              savedDoc._klLoggerInitialDoc, currentObject,
+              savedDoc._eventLoggerInitialDoc, currentObject,
               pathsLoggedAlways, modifiedPaths, [], mongooseInstance);
           }
             break;
           case Behaviour.snapshotAndDelta: {
             objectToLog.__snapshot = savedDoc.loggableObject();
             objectToLog.__delta = getDelta(
-              savedDoc._klLoggerInitialDoc, currentObject,
+              savedDoc._eventLoggerInitialDoc, currentObject,
               pathsLoggedAlways, modifiedPaths, [], mongooseInstance);
           }
             break;
@@ -357,15 +357,15 @@ export function plugin(mongooseInstance) {
         }
       }
       objectToLog.__logBehaviour = logBehaviour;
-      savedDoc._klLoggerInitialDoc = savedDoc.loggableObject();
+      savedDoc._eventLoggerInitialDoc = savedDoc.loggableObject();
       return opts.logger.log({
         object: objectToLog, objectType, action, actor, when, attributes, callStack,
       }, done);
     }
 
     schema.pre('save', function preSave(next) {
-      this._klLoggerModifiedPaths = this.modifiedPaths();
-      this._klLoggerIsNew = this.isNew;
+      this._eventLoggerModifiedPaths = this.modifiedPaths();
+      this._eventLoggerIsNew = this.isNew;
       next();
     });
 
@@ -374,36 +374,36 @@ export function plugin(mongooseInstance) {
       const options = this.options || {};
       const updated = cleanUpdateQuery(this._update);
       
-      const callstack = options._klLoggerSaveCallStack;
-      delete options._klLoggerSaveCallStack;      
+      const callstack = options._eventLoggerSaveCallStack;
+      delete options._eventLoggerSaveCallStack;      
 
       const existing = await this.findOne(search);
       if (existing) {
-        this._klLoggerInitialDoc = existing.loggableObject();
+        this._eventLoggerInitialDoc = existing.loggableObject();
       }
 
-      this._klLoggerIsNew = !existing && options.upsert;
-      this._klLoggerQuery = {
+      this._eventLoggerIsNew = !existing && options.upsert;
+      this._eventLoggerQuery = {
         ...search,
         ...updated,
       };
-      this._klLoggerReturnsNew = options.new;
-      this._klLoggerSaveCallStack = callstack;
+      this._eventLoggerReturnsNew = options.new;
+      this._eventLoggerSaveCallStack = callstack;
       next();
     });
 
     schema.post('findOneAndUpdate', async function(result, done) {
       try {
-        if (!this._klLoggerReturnsNew) {
-          result = await this.findOne(this._klLoggerQuery);
+        if (!this._eventLoggerReturnsNew) {
+          result = await this.findOne(this._eventLoggerQuery);
         }
       
         if (!result) return done();
       
-        result._klLoggerIsNew = this._klLoggerIsNew;
-        result._klLoggerInitialDoc = this._klLoggerInitialDoc;
-        result._klLoggerActor = this._klLoggerActor;
-        result._klLoggerSaveCallStack = this._klLoggerSaveCallStack;
+        result._eventLoggerIsNew = this._eventLoggerIsNew;
+        result._eventLoggerInitialDoc = this._eventLoggerInitialDoc;
+        result._eventLoggerActor = this._eventLoggerActor;
+        result._eventLoggerSaveCallStack = this._eventLoggerSaveCallStack;
 
         postSave(result, done);
       } catch (err) {
@@ -412,13 +412,13 @@ export function plugin(mongooseInstance) {
     });  
     schema.post('save', postSave);
     schema.post('remove', (removedDoc, done) => {
-      const opts = removedDoc.loggingOptions() || removedDoc.schema._klLoggerOptions || _options;
+      const opts = removedDoc.loggingOptions() || removedDoc.schema._eventLoggerOptions || _options;
       const when = new Date();
       const modelName = removedDoc.constructor.modelName;
       const objectType = `${opts.objectTypePrefix}${modelName}`;
-      const attributes = loggableObject(removedDoc._klLoggerAttributes, undefined, mongooseInstance);
-      const actor = loggableObject(removedDoc._klLoggerActor, undefined, mongooseInstance);
-      const callStack = removedDoc._klLoggerRemoveCallStack;
+      const attributes = loggableObject(removedDoc._eventLoggerAttributes, undefined, mongooseInstance);
+      const actor = loggableObject(removedDoc._eventLoggerActor, undefined, mongooseInstance);
+      const callStack = removedDoc._eventLoggerRemoveCallStack;
       let actorType = Actor.system;
       if (actor && actor.providerData) {
         delete actor.providerData;
@@ -447,7 +447,7 @@ export function plugin(mongooseInstance) {
       }, done);
     });
     schema.post('init', function postInit(initiatedDoc, done) {
-      this._klLoggerInitialDoc = initiatedDoc.loggableObject();
+      this._eventLoggerInitialDoc = initiatedDoc.loggableObject();
       done();
     });
     schema.methods.loggableObject = function getLoggableObject(pathsToLog) {
@@ -455,7 +455,7 @@ export function plugin(mongooseInstance) {
     };
     schema.methods.by = function setModelActor(actor) {
       setActor(this, actor);
-      this._klLoggerActor = actor;
+      this._eventLoggerActor = actor;
       return this;
     };
     schema.methods.attr = function setModelAttributes(attributes) {
@@ -463,34 +463,34 @@ export function plugin(mongooseInstance) {
       return this;
     };
     schema.statics.setLoggingOptions = function modelStaticSetLoggingOptions(opts) {
-      const moptions = mergeOptions(this.schema._klLoggerOptions || _options, opts);
-      this.schema._klLoggerOptions = moptions;
+      const moptions = mergeOptions(this.schema._eventLoggerOptions || _options, opts);
+      this.schema._eventLoggerOptions = moptions;
     };
     schema.statics.loggingOptions = function modelStaticLoggingOptions() {
-      const opts = this._klLoggerOptions || _options;
+      const opts = this._eventLoggerOptions || _options;
       return opts;
     };
     schema.loggingOptions = function schemaLoggingOptions() {
-      const opts = this._klLoggerOptions || _options;
+      const opts = this._eventLoggerOptions || _options;
       return opts;
     };
     schema.setLoggingOptions = function schemaSetLoggingOptions(opts) {
-      const moptions = mergeOptions(this._klLoggerOptions || _options, opts);
-      this._klLoggerOptions = moptions;
+      const moptions = mergeOptions(this._eventLoggerOptions || _options, opts);
+      this._eventLoggerOptions = moptions;
     };
     schema.methods.setLoggingOptions = function documentSetLoggingOptions(opts) {
       const moptions = mergeOptions(
-        this._klLoggerOptions || this.schema._klLoggerOptions || _options, opts);
-      this._klLoggerOptions = moptions;
+        this._eventLoggerOptions || this.schema._eventLoggerOptions || _options, opts);
+      this._eventLoggerOptions = moptions;
     };
     schema.methods.loggingOptions = function documentLoggingOptions() {
-      const opts = this._klLoggerOptions || this.schema._klLoggerOptions || _options;
+      const opts = this._eventLoggerOptions || this.schema._eventLoggerOptions || _options;
       return opts;
     };
   };
 }
 
-export function klLoggerPlugin(mongooseInstance) {
+export function eventLoggerPlugin(mongooseInstance) {
   patchDocumentPrototype(mongooseInstance);
   patchQueryPrototype(mongooseInstance);
   return plugin(mongooseInstance);

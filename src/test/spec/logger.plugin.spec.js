@@ -985,27 +985,27 @@ describe('Model functions', () => {
     it('should create a document', w(async () => {
       const doc = new Sample({}).by('specs');
       const sample = await doc.save();
-      sample.should.have.a.property('_klLoggerActor', 'specs');
+      sample.should.have.a.property('_eventLoggerActor', 'specs');
       should(sample).not.be.undefined();
     }));
   });
   runSuite('Fetching', () => {
     it('should fetch a document with findById', w(async () => {
       const sample = await (new Sample({}).by('specs').save());
-      sample.should.have.a.property('_klLoggerActor', 'specs');
+      sample.should.have.a.property('_eventLoggerActor', 'specs');
       const retrieved = await Sample.findById(sample._id).by('specs').exec();
       should(retrieved).not.be.undefined();
       retrieved.should.have.a.property('_id', sample._id);
-      retrieved.should.have.a.property('_klLoggerActor', 'specs');
+      retrieved.should.have.a.property('_eventLoggerActor', 'specs');
     }));
     it('should fetch the document with findOne', w(async () => {
       const name = Math.random().toFixed(4);
       const sample = await (new Sample({ name }).by('specs').save());
-      sample.should.have.a.property('_klLoggerActor', 'specs');
+      sample.should.have.a.property('_eventLoggerActor', 'specs');
       const retrieved = await Sample.findOne({ name }).by('specs').exec();
       should(retrieved).not.be.undefined();
       retrieved.should.have.a.property('_id', sample._id);
-      retrieved.should.have.a.property('_klLoggerActor', 'specs');
+      retrieved.should.have.a.property('_eventLoggerActor', 'specs');
     }));
     it('should fetch the document with find', w(async () => {
       const name = Math.random().toFixed(4);
@@ -1013,7 +1013,7 @@ describe('Model functions', () => {
       const retrieved = await Sample.find({ name }).by('specs').exec();
       (retrieved.length > 0).should.be.ok();
       for (const item of retrieved) {
-        item.should.have.a.property('_klLoggerActor', 'specs');
+        item.should.have.a.property('_eventLoggerActor', 'specs');
       }
     }));
     it('should fetch the document with population', w(async () => {
@@ -1021,41 +1021,41 @@ describe('Model functions', () => {
       const sampleItem = await (new SampleItem(
         { name: Math.random().toFixed(4) }
         ).by('specs').save());
-      sampleItem.should.have.a.property('_klLoggerActor', 'specs');
+      sampleItem.should.have.a.property('_eventLoggerActor', 'specs');
       const sample = await (new Sample({ name, items: [sampleItem] }).by('specs').save());
-      sample.should.have.a.property('_klLoggerActor', 'specs');
+      sample.should.have.a.property('_eventLoggerActor', 'specs');
       const promise = Sample.findById(sample._id).populate('items').by('specs').exec();
       const retrieved = await promise;
       should(retrieved).be.ok();
-      retrieved.should.have.a.property('_klLoggerActor', 'specs');
+      retrieved.should.have.a.property('_eventLoggerActor', 'specs');
       should(retrieved.items).have.lengthOf(1);
       const retrievedItem = retrieved.items[0];
       retrievedItem.should.have.property('name', sampleItem.name);
-      retrievedItem.should.have.a.property('_klLoggerActor', 'specs');
+      retrievedItem.should.have.a.property('_eventLoggerActor', 'specs');
     }));
     it('should fetch document with deep population', w(async () => {
       const name = Math.random().toFixed(4);
       const sampleSubItem = await (new SampleSubItem(
         { name: Math.random().toFixed(4) }
         ).by('specs').save());
-      sampleSubItem.should.have.a.property('_klLoggerActor', 'specs');
+      sampleSubItem.should.have.a.property('_eventLoggerActor', 'specs');
       const sampleItem = await (new SampleItem(
         { name: Math.random().toFixed(4), items: [sampleSubItem] }
         ).by('specs').save());
-      sampleItem.should.have.a.property('_klLoggerActor', 'specs');
+      sampleItem.should.have.a.property('_eventLoggerActor', 'specs');
       const sample = await (new Sample({ name, items: [sampleItem] }).by('specs').save());
-      sample.should.have.a.property('_klLoggerActor', 'specs');
+      sample.should.have.a.property('_eventLoggerActor', 'specs');
       const promise = Sample.findById(sample._id).deepPopulate('items.items').by('specs').exec();
       const retrieved = await promise;
       should(retrieved).be.ok();
-      retrieved.should.have.a.property('_klLoggerActor', 'specs');
+      retrieved.should.have.a.property('_eventLoggerActor', 'specs');
       should(retrieved.items).have.lengthOf(1);
       const retrievedItem = retrieved.items[0];
-      retrievedItem.should.have.a.property('_klLoggerActor', 'specs');
+      retrievedItem.should.have.a.property('_eventLoggerActor', 'specs');
       should(retrievedItem.items).have.lengthOf(1);
       const retrievedSubItem = retrievedItem.items[0];
       retrievedSubItem.should.have.property('name', sampleSubItem.name);
-      retrievedSubItem.should.have.a.property('_klLoggerActor', 'specs');
+      retrievedSubItem.should.have.a.property('_eventLoggerActor', 'specs');
     }));
   });
   runSuite('Removing', () => {
@@ -1075,15 +1075,15 @@ describe('Caller logging', () => {
       const doc = new Sample({}).by('specs');
       await doc.save();
       const line = lineNumber();
-      doc.should.have.a.property('_klLoggerSaveCallStack');
-      doc._klLoggerSaveCallStack[0].includes(`${currentFileName}:${line - 1}:17`).should.be.ok();
+      doc.should.have.a.property('_eventLoggerSaveCallStack');
+      doc._eventLoggerSaveCallStack[0].includes(`${currentFileName}:${line - 1}:17`).should.be.ok();
     }));
     it('should set caller to the saved document', w(async () => {
       const doc = new Sample({}).by('specs');
       const sample = await doc.save();
       const line = lineNumber();
-      sample.should.have.a.property('_klLoggerSaveCallStack');
-      sample._klLoggerSaveCallStack[0].includes(`${currentFileName}:${line - 1}:32`).should.be.ok();
+      sample.should.have.a.property('_eventLoggerSaveCallStack');
+      sample._eventLoggerSaveCallStack[0].includes(`${currentFileName}:${line - 1}:32`).should.be.ok();
     }));
   });
   runSuite('Removing', () => {
@@ -1093,8 +1093,8 @@ describe('Caller logging', () => {
       const promise = sample.remove();
       const line = lineNumber();
       await promise;
-      sample.should.have.a.property('_klLoggerRemoveCallStack');
-      sample._klLoggerRemoveCallStack[0].includes(`${currentFileName}:${line - 1}:30`).should.be.ok();
+      sample.should.have.a.property('_eventLoggerRemoveCallStack');
+      sample._eventLoggerRemoveCallStack[0].includes(`${currentFileName}:${line - 1}:30`).should.be.ok();
     }));
   });
 });
