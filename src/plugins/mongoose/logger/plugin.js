@@ -271,60 +271,9 @@ export function plugin(mongooseInstance) {
     }
     schema._klLoggerLogger = Logger;
     schema._klLoggerOptions = mOptions;
-    schema.pre('save', function preSave(next) {
-      // Check if this has already been set by another pre hook
-      if (!this._klLoggerStaticContext) {
-        this._klLoggerModifiedPaths = this.modifiedPaths();
-        this._klLoggerIsNew = this.isNew;
-      }
-      next();
-    });
-    schema.pre('findOneAndUpdate', async function preUpdate(next) {
-      const search = this._conditions || {};
-      const options = this.options || {};
-      const updated = cleanUpdateQuery(this._update);
-      
-      const callstack = options._klLoggerSaveCallStack;
-      delete options._klLoggerSaveCallStack;      
 
-      const existing = await this.findOne(search);
-      if (existing) {
-        this._klLoggerInitialDoc = existing.loggableObject();
-      }
 
-      this._klLoggerIsNew = !existing && options.upsert;
-      this._klLoggerQuery = {
-        ...search,
-        ...updated,
-      };
-      this._klLoggerReturnsNew = options.new;
-      this._klLoggerSaveCallStack = callstack;
-      next();
-    });
-    schema.post('findOneAndUpdate', async function(result, done) {
-      try {
-        if (!this._klLoggerReturnsNew) {
-          result = await this.findOne(this._klLoggerQuery);
-        }
-      
-        if (!result) return done();
-      
-        result._klLoggerIsNew = this._klLoggerIsNew;
-        result._klLoggerInitialDoc = this._klLoggerInitialDoc;
-        result._klLoggerActor = this._klLoggerActor;
-        result._klLoggerSaveCallStack = this._klLoggerSaveCallStack;
-      
-        // Set flag to make sure that the pre-save doesnt overide this info
-        result._klLoggerStaticContext = true;
-      
-        // Skip validation when because findOneAndUpdate does not do model validation.
-        await result.save({ validateBeforeSave: false });
-        done();
-      } catch (err) {
-        return done(err);
-      }
-    });  
-    schema.post('save', (savedDoc, done) => {
+    function postSave(savedDoc, done)  {
       const opts = savedDoc._klLoggerOptions || savedDoc.schema._klLoggerOptions || _options;
       const when = new Date();
       const modelName = savedDoc.constructor.modelName;
@@ -412,7 +361,56 @@ export function plugin(mongooseInstance) {
       return opts.logger.log({
         object: objectToLog, objectType, action, actor, when, attributes, callStack,
       }, done);
+    }
+
+    schema.pre('save', function preSave(next) {
+      this._klLoggerModifiedPaths = this.modifiedPaths();
+      this._klLoggerIsNew = this.isNew;
+      next();
     });
+
+    schema.pre('findOneAndUpdate', async function preUpdate(next) {
+      const search = this._conditions || {};
+      const options = this.options || {};
+      const updated = cleanUpdateQuery(this._update);
+      
+      const callstack = options._klLoggerSaveCallStack;
+      delete options._klLoggerSaveCallStack;      
+
+      const existing = await this.findOne(search);
+      if (existing) {
+        this._klLoggerInitialDoc = existing.loggableObject();
+      }
+
+      this._klLoggerIsNew = !existing && options.upsert;
+      this._klLoggerQuery = {
+        ...search,
+        ...updated,
+      };
+      this._klLoggerReturnsNew = options.new;
+      this._klLoggerSaveCallStack = callstack;
+      next();
+    });
+
+    schema.post('findOneAndUpdate', async function(result, done) {
+      try {
+        if (!this._klLoggerReturnsNew) {
+          result = await this.findOne(this._klLoggerQuery);
+        }
+      
+        if (!result) return done();
+      
+        result._klLoggerIsNew = this._klLoggerIsNew;
+        result._klLoggerInitialDoc = this._klLoggerInitialDoc;
+        result._klLoggerActor = this._klLoggerActor;
+        result._klLoggerSaveCallStack = this._klLoggerSaveCallStack;
+
+        postSave(result, done);
+      } catch (err) {
+        return done(err);
+      }
+    });  
+    schema.post('save', postSave);
     schema.post('remove', (removedDoc, done) => {
       const opts = removedDoc.loggingOptions() || removedDoc.schema._klLoggerOptions || _options;
       const when = new Date();
