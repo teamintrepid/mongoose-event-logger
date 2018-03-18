@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-import { klLoggerPlugin, Logger } from '../../index';
+import { eventLoggerPlugin, Logger } from '../../index';
 module.exports = (dependencies) => {
   const db = dependencies.db;
   const SampleItemSchema = new Schema({
@@ -10,6 +10,6 @@ module.exports = (dependencies) => {
     ],
     createdAt: { type: Date, default: Date.now },
   });
-  SampleItemSchema.plugin(klLoggerPlugin(mongoose), { logger: Logger, objectTypePrefix: 'L' });
+  SampleItemSchema.plugin(eventLoggerPlugin(mongoose), { logger: Logger, objectTypePrefix: 'L' });
   db.model('SampleItem', SampleItemSchema);
 };

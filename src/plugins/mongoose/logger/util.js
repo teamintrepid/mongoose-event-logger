@@ -338,11 +338,11 @@ export function setProperty(
   }
 }
 export function setActor(model, actor, level = 0, mongooseInstance = mongoose) {
-  return setProperty(model, '_klLoggerActor', actor, setSpath, getSpath, level, mongooseInstance);
+  return setProperty(model, '_eventLoggerActor', actor, setSpath, getSpath, level, mongooseInstance);
 }
 export function setAttributes(model, attributes, level = 0, mongooseInstance = mongoose) {
   return setProperty(
-    model, '_klLoggerAttributes', attributes,
+    model, '_eventLoggerAttributes', attributes,
     updateAttributes, getSpath, level, mongooseInstance);
 }
 

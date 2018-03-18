@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-import { klLoggerPlugin, Logger } from '../../index';
+import { eventLoggerPlugin, Logger } from '../../index';
 const deepPopulate = require('mongoose-deep-populate')(mongoose);
 
 module.exports = (dependencies) => {
@@ -15,6 +15,6 @@ module.exports = (dependencies) => {
     createdAt: { type: Date, default: Date.now },
   });
   SampleSchema.plugin(deepPopulate);
-  SampleSchema.plugin(klLoggerPlugin(mongoose), { logger: Logger });
+  SampleSchema.plugin(eventLoggerPlugin(mongoose), { logger: Logger });
   db.model('Sample', SampleSchema);
 };

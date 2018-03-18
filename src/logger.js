@@ -2,7 +2,7 @@ const MongoWritableStream = require('mongo-writable-stream');
 const through2 = require('through2');
 const winston = require('winston');
 const fs = require('fs');
-import * as defaultConfig from './config/config';
+import defaultConfig from './config/config';
 
 export const loggerSyncIntervalMS = 10;
 
@@ -29,6 +29,10 @@ function waitUntil(condition, callback, interval = loggerSyncIntervalMS) {
 const signals = ['SIGTERM', 'SIGINT'];
 export class Logger {
   static signalListeners = new Map();
+  static available = false;
+  static initialised = false;
+  static logPromises = [];
+
   constuctor() {
     throw new Error('Logger can not be instantiated, use static methods');
   }
@@ -37,6 +41,8 @@ export class Logger {
       throw new Error('Logger should be initialised with config');
     }
     this.configuration = config;
+    this.available = true;
+    this.initialised = true;
   }
   // calls callback when stream is available
   static waitUntilAvailable(callback) {
@@ -244,6 +250,7 @@ export class Logger {
   }
   // logs event with respect to stream availability
   static log(payload, callback) {
+    if (!this.initialised) throw new Error('Logger not initialised. Please call Logger.init(config)');
     payload.actor = payload.actor || null;
     payload.when = payload.when || new Date();
     const promise = new Promise((resolve, reject) => {
@@ -294,6 +301,3 @@ export class Logger {
     return promise;
   }
 }
-Logger.logPromises = [];
-Logger.available = true;
-Logger.init(defaultConfig);
