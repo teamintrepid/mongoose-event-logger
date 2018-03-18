@@ -24,7 +24,7 @@ import mongoose from 'mongoose';
 import { eventLoggerPlugin, Logger } from 'mongoose-event-logger';
 
 const dogSchema = new mongoose.Schema({
-	name: String
+  name: String
 });
 
 dogSchema.plugin(eventLoggerPlugin(mongoose), { logger: Logger });
@@ -33,7 +33,7 @@ const Dog = mongoose.model('Dog', dogSchema);
 ```
 
 #### Usage
-```
+```js
 Logger.init({
   url: `mongodb://localhost:27017/event-log`,
   collection: 'events'
@@ -54,7 +54,7 @@ await dog.by('bob@example.com').save();
 ```
 
 Will save the following to the events database:
-```json
+```
 {
     "_id" : ObjectId("5aadcc864c7fd8631a35388f"),
     "object" : {

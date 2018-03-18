@@ -31,6 +31,7 @@
   "homepage": "https://github.com/teamintrepid/mongoose-event-logger",
   "dependencies": {
     "babel-polyfill": "^6.9.1",
+    "babel-preset-env": "^1.6.1",
     "babel-runtime": "^6.6.1",
     "clone": "^1.0.2",
     "event-stream": "^3.3.4",
